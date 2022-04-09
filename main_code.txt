@@ -1,0 +1,66 @@
+driver := agouti.ChromeDriver(agouti.Browser("chrome"))
+	if err := driver.Start(); err != nil {
+		log.Fatalf("Failed to start driver:%v", err)
+	}
+	defer driver.Stop()
+
+	page, err := driver.NewPage()
+
+	if err != nil {
+		log.Fatalf("Failed to open page:%v", err)
+	}
+	// ログインページに遷移
+	if err := page.Navigate(url); err != nil {
+		log.Fatalf("Failed to navigate:%v", err)
+	}
+
+	// ID, Passの要素を取得し、値を設定
+	identity := page.FindByID("username")
+	password := page.FindByID("password")
+	identity.Fill(id)
+	password.Fill(pass)
+	input := page.FindByLabel("Remember username")
+	if err = input.Click(); err != nil {
+		log.Fatalf("Failed to navigate:%v", err)
+	}
+	btn := page.FindByButton("Log in")
+	if err = btn.Click(); err != nil {
+		log.Fatalf("Failed to navigate:%v", err)
+	}
+
+	link := page.FindByLink("カレンダーへ移動する ...")
+
+	if err := link.Click(); err != nil {
+		log.Fatalf("Failed to navigate:%v", err)
+	}
+
+	html, _ := page.HTML() //遷移先のhtmlを取得
+	file, err := os.Create("file.html")
+	if err != nil {
+		log.Fatalf("Failed to create file %v", err)
+	}
+	defer file.Close()
+	file_open, err := os.Open("/Users/yudai/Go/test/test7/file.html")
+	if err != nil {
+		log.Fatalf("Failed to open %v", err)
+	}
+	defer file_open.Close()
+	file.WriteString(html)
+	//htmlをパース
+	doc, err := goquery.NewDocumentFromReader(file_open)
+	if err != nil {
+		log.Fatalf("Failed to read %v", err)
+	}
+
+	class := doc.Find("div.d-inline-block")
+	class.Each(func(index int, item *goquery.Selection) {
+		selection := item.Find("h3.name.d-inline-block").Text()
+		data = append(data, selection)
+		//	fmt.Println(selection)
+	})
+
+	for _, s := range data {
+		assignment += s + "\n"
+	}
+
+	fmt.Println(assignment)
