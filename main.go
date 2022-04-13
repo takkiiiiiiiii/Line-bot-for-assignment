@@ -28,8 +28,8 @@ var s string
 func main() {
 
 	bot, err := linebot.New(
-		"fd1fd5ee8ea8d5608866d25bc8f4eff8",
-		"G7wLav3sSFPlO+BZtbBvtlGDeFAB0iGm5mynU0jkPXZPLFwF1PMvWXoUBYOuiM25oO4/hsLEuJVzRfxwJ6U/ZfsKnywzM850aAz4ing3oYrHl8a0KYe+ViaEdT5mH0aKFedfKPBi+6oH5zDD8WKXYAdB04t89/1O/w1cDnyilFU=",
+		"発行されたチャネルシークレット",
+		"発行されたチャネルアクセストークン",
 	)
 	if err != nil {
 		log.Fatal(err)
