@@ -14,9 +14,9 @@ import (
 )
 
 const (
-	url  = "url"
-	id   = "my_id"
-	pass = "my_password"
+	url  = "https://elms.u-aizu.ac.jp/login/index.php"
+	id   = "s1290077"
+	pass = "takkiiiiiiiii25"
 )
 
 var data []string
@@ -28,8 +28,8 @@ var s string
 func main() {
 
 	bot, err := linebot.New(
-		"発行されたチャネルシークレット",
-		"発行されたチャネルアクセストークン",
+		"fd1fd5ee8ea8d5608866d25bc8f4eff8",
+		"G7wLav3sSFPlO+BZtbBvtlGDeFAB0iGm5mynU0jkPXZPLFwF1PMvWXoUBYOuiM25oO4/hsLEuJVzRfxwJ6U/ZfsKnywzM850aAz4ing3oYrHl8a0KYe+ViaEdT5mH0aKFedfKPBi+6oH5zDD8WKXYAdB04t89/1O/w1cDnyilFU=",
 	)
 	if err != nil {
 		log.Fatal(err)
@@ -101,7 +101,7 @@ func main() {
 							log.Fatalf("Failed to create file %v", err)
 						}
 						defer file.Close()
-						file_open, err := os.Open("/Users/takkiiiiiiiii/Go/test/test7/file.html")
+						file_open, err := os.Open("/Users/yudai/Go/test/test7/file.html")
 						if err != nil {
 							log.Fatalf("Failed to open %v", err)
 						}
@@ -116,12 +116,12 @@ func main() {
 						content.Each(func(index int, item *goquery.Selection) {
 							contents := item.Find("div.d-inline-block").Find("h3.name.d-inline-block").Text()
 							time := item.Find("div.description.card-body").Find("div.row").Find("div.col-11").Find("a").Text() //課題の教科名と締切日時
-							ok := time + "\n" + contents
+							ok := time + "\n" + "内容: " + contents
 							data = append(data, ok)
 						})
 
 						for i, s = range data {
-							assignment += s + "\n"
+							assignment += s + "\n" + "+-----------------------------+" + "\n"
 						}
 
 						if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(assignment)).Do(); err != nil {
