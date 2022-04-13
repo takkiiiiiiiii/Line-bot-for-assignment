@@ -14,9 +14,9 @@ import (
 )
 
 const (
-	url  = "https://elms.u-aizu.ac.jp/login/index.php"
-	id   = "s1290077"
-	pass = "takkiiiiiiiii25"
+	url  = "url"
+	id   = "my_id"
+	pass = "my_password"
 )
 
 var data []string
@@ -101,7 +101,7 @@ func main() {
 							log.Fatalf("Failed to create file %v", err)
 						}
 						defer file.Close()
-						file_open, err := os.Open("/Users/yudai/Go/test/test7/file.html")
+						file_open, err := os.Open("/Users/takkiiiiiiiii/Go/test/test7/file.html")
 						if err != nil {
 							log.Fatalf("Failed to open %v", err)
 						}
