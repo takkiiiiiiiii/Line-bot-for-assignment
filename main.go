@@ -20,7 +20,10 @@ const (
 )
 
 var data []string
+var head []string
 var assignment string
+var i int
+var s string
 
 func main() {
 
@@ -50,7 +53,13 @@ func main() {
 				case *linebot.TextMessage: //文字列の場合
 					replyMessage := message.Text
 					if strings.Contains(replyMessage, postText) {
-						driver := agouti.ChromeDriver(agouti.Browser("chrome"))
+
+						driver := agouti.ChromeDriver(
+							agouti.ChromeOptions("args", []string{
+								"--headless",
+							}),
+							agouti.Debug,
+						)
 						if err := driver.Start(); err != nil {
 							log.Fatalf("Failed to start driver:%v", err)
 						}
@@ -103,21 +112,24 @@ func main() {
 						if err != nil {
 							log.Fatalf("Failed to read %v", err)
 						}
-
-						class := doc.Find("div.d-inline-block")
-						class.Each(func(index int, item *goquery.Selection) {
-							selection := item.Find("h3.name.d-inline-block").Text()
-							data = append(data, selection)
-							//	fmt.Println(selection)
+						content := doc.Find("div.card.rounded")
+						content.Each(func(index int, item *goquery.Selection) {
+							contents := item.Find("div.d-inline-block").Find("h3.name.d-inline-block").Text()
+							time := item.Find("div.description.card-body").Find("div.row").Find("div.col-11").Find("a").Text() //課題の教科名と締切日時
+							ok := time + "\n" + contents
+							data = append(data, ok)
 						})
 
-						for _, s := range data {
+						for i, s = range data {
 							assignment += s + "\n"
 						}
 
 						if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(assignment)).Do(); err != nil {
 							log.Fatal(err)
 						}
+						//初期化
+						data = append(data[i+1:], data[i+1:]...)
+						assignment = ""
 					} else {
 						if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(replyMessage)).Do(); err != nil {
 							log.Fatal(err)
