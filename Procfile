@@ -1,1 +1,1 @@
-web: bin/line-bot-golang-assignment
+web: /Users/yudai/Go/test/test7/execu/main
