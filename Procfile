@@ -1,1 +1,1 @@
-web: /Users/yudai/Go/test/test7/execu/main
+web: /Users/yudai/Go/test/test7/execu/scraping
