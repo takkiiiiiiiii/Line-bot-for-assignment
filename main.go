@@ -69,7 +69,7 @@ func main() {
 						if err := driver.Start(); err != nil {
 							log.Fatalf("Failed to start driver:%v", err)
 						}
-						//defer driver.Stop()
+						defer driver.Stop()
 
 						page, err := driver.NewPage()
 
