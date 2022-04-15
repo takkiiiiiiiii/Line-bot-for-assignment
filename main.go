@@ -57,6 +57,8 @@ func main() {
 						driver := agouti.ChromeDriver(
 							agouti.ChromeOptions("args", []string{
 								"--headless",
+								"-disable-gpu",
+								"-disable-dev-shm-usage",
 							}),
 							agouti.ChromeOptions(
 								"binary", "/app/.chromedriver/bin/chromedriver",
@@ -75,7 +77,7 @@ func main() {
 						}
 						// ログインページに遷移
 						if err := page.Navigate(url); err != nil {
-							log.Fatalf("Failed to navigate:%v", err)
+							log.Fatalf("Failed to navigate login page:%v", err)
 						}
 
 						// ID, Passの要素を取得し、値を設定
@@ -89,7 +91,7 @@ func main() {
 						}
 						btn := page.FindByButton("Log in")
 						if err = btn.Click(); err != nil {
-							log.Fatalf("Failed to navigate:%v", err)
+							log.Fatalf("Failed to log in:%v", err)
 						}
 
 						link := page.FindByLink("カレンダーへ移動する ...")
