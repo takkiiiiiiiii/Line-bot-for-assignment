@@ -58,6 +58,9 @@ func main() {
 							agouti.ChromeOptions("args", []string{
 								"--headless",
 							}),
+							agouti.ChromeOptions(
+								"binary", "/app/.chromedriver/bin/chromedriver",
+							),
 							agouti.Debug,
 						)
 						if err := driver.Start(); err != nil {
