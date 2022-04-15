@@ -57,8 +57,8 @@ func main() {
 						driver := agouti.ChromeDriver(
 							agouti.ChromeOptions("args", []string{
 								"--headless",
-								"-disable-gpu",
-								"-disable-dev-shm-usage",
+								"--disable-gpu",
+								"--disable-dev-shm-usage",
 							}),
 							agouti.ChromeOptions(
 								"binary", "/app/.chromedriver/bin/chromedriver",
