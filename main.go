@@ -57,6 +57,7 @@ func main() {
 						driver := agouti.ChromeDriver(
 							agouti.ChromeOptions("args", []string{
 								"--headless",
+								"--window-size=300,1200",
 								"--disable-gpu",
 								"--disable-dev-shm-usage",
 							}),
@@ -79,7 +80,7 @@ func main() {
 						if err := page.Navigate(url); err != nil {
 							log.Fatalf("Failed to navigate login page:%v", err)
 						}
-						defer driver.Stop()
+						//defer driver.Stop()
 
 						// ID, Passの要素を取得し、値を設定
 						identity := page.FindByID("username")
