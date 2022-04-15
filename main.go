@@ -72,8 +72,6 @@ func main() {
 
 						page, err := driver.NewPage()
 
-						defer driver.NewPage()
-
 						if err != nil {
 							log.Fatalf("Failed to open page:%v", err)
 						}
@@ -81,6 +79,7 @@ func main() {
 						if err := page.Navigate(url); err != nil {
 							log.Fatalf("Failed to navigate login page:%v", err)
 						}
+						defer driver.Stop()
 
 						// ID, Passの要素を取得し、値を設定
 						identity := page.FindByID("username")
