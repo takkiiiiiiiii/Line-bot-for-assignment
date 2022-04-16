@@ -154,7 +154,11 @@ func main() {
 	}
 
 	http.HandleFunc("/kadai", kadai)
-	if err := http.ListenAndServe(":7777", nil); err != nil {
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "443"
+	}
+	if err := http.ListenAndServe(":"+port, nil); err != nil {
 		log.Print(err)
 	}
 	time.Sleep(10 * time.Second)
