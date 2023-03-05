@@ -5,12 +5,12 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"os/exec"
 	"strings"
 	"time"
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/line/line-bot-sdk-go/v7/linebot"
-	"github.com/sclevine/agouti"
 )
 
 const (
@@ -54,55 +54,78 @@ func main() {
 					replyMessage := message.Text
 					if strings.Contains(replyMessage, postText) {
 
-						driver := agouti.ChromeDriver(
-							agouti.ChromeOptions("args", []string{
-								"--headless",
-								"--window-size=300,1200",
-								"--disable-gpu",
-								"--disable-dev-shm-usage",
-							}),
-							agouti.ChromeOptions(
-								"binary", "/app/.chromedriver/bin/chromedriver",
-							),
-							agouti.Debug,
-						)
-						if err := driver.Start(); err != nil {
-							log.Fatalf("Failed to start driver:%v", err)
-						}
-						defer driver.Stop()
+						// driver := agouti.ChromeDriver(
+						// 	agouti.ChromeOptions("args", []string{
+						// 		"--headless",
+						// 		"--window-size=300,1200",
+						// 		"--disable-gpu",
+						// 		"--disable-dev-shm-usage",
+						// 	}),
+						// 	agouti.ChromeOptions(
+						// 		"binary", "/app/.chromedriver/bin/chromedriver",
+						// 	),
+						// 	agouti.Debug,
+						// )
+						// if err := driver.Start(); err != nil {
+						// 	log.Fatalf("Failed to start driver:%v", err)
+						// }
+						// defer driver.Stop()
 
-						page, err := driver.NewPage()
+						// page, err := driver.NewPage()
 
+						// if err != nil {
+						// 	log.Fatalf("Failed to open page:%v", err)
+						// }
+						// // ログインページに遷移
+						// if err := page.Navigate(url); err != nil {
+						// 	log.Fatalf("Failed to navigate login page:%v", err)
+						// }
+						// //defer driver.Stop()
+
+						// // ID, Passの要素を取得し、値を設定
+						// identity := page.FindByID("username")
+						// password := page.FindByID("password")
+						// identity.Fill(id)
+						// password.Fill(pass)
+						// input := page.FindByLabel("Remember username")
+						// if err = input.Click(); err != nil {
+						// 	log.Fatalf("Failed to navigate:%v", err)
+						// }
+						// btn := page.FindByButton("Log in")
+						// if err = btn.Click(); err != nil {
+						// 	log.Fatalf("Failed to log in:%v", err)
+						// }
+
+						// link := page.FindByLink("カレンダーへ移動する ...")
+
+						// if err := link.Click(); err != nil {
+						// 	log.Fatalf("Failed to navigate:%v", err)
+						// }
+
+						// html, _ := page.HTML() //遷移先のhtmlを取得
+
+						subCmd := "https://elms.u-aizu.ac.jp/login/index.php"
+						err := exec.Command("curl", subCmd, "-X", "GET", "-c", "cookie.txt", "-o", "login.html").Run()
 						if err != nil {
-							log.Fatalf("Failed to open page:%v", err)
+							log.Fatalf("Failed to execute : %v", err)
 						}
-						// ログインページに遷移
-						if err := page.Navigate(url); err != nil {
-							log.Fatalf("Failed to navigate login page:%v", err)
+						auth_page, err := os.Open("/Users/yudai/Go/test/line-bot-for-assignment/login.html")
+						if err != nil {
+							log.Fatalf("Failed to open %v", err)
 						}
-						//defer driver.Stop()
+						defer auth_page.Close()
 
-						// ID, Passの要素を取得し、値を設定
-						identity := page.FindByID("username")
-						password := page.FindByID("password")
-						identity.Fill(id)
-						password.Fill(pass)
-						input := page.FindByLabel("Remember username")
-						if err = input.Click(); err != nil {
-							log.Fatalf("Failed to navigate:%v", err)
+						auth_doc, err := goquery.NewDocumentFromReader(auth_page)
+						if err != nil {
+							log.Fatalf("Failed to read %v", err)
 						}
-						btn := page.FindByButton("Log in")
-						if err = btn.Click(); err != nil {
-							log.Fatalf("Failed to log in:%v", err)
-						}
+						var val []string
+						auth_doc.Find("input").Each(func(index int, item *goquery.Selection) {
+							nameElement, _ := item.Attr("value")
+							val = append(val, nameElement)
+						})
+						//val[1]にloginToken
 
-						link := page.FindByLink("カレンダーへ移動する ...")
-
-						if err := link.Click(); err != nil {
-							log.Fatalf("Failed to navigate:%v", err)
-						}
-
-						html, _ := page.HTML() //遷移先のhtmlを取得
 						file, err := os.Create("file.html")
 						if err != nil {
 							log.Fatalf("Failed to create file %v", err)
