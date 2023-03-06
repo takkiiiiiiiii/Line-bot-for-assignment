@@ -56,8 +56,7 @@ func main() {
 				case *linebot.TextMessage: //文字列の場合
 					replyMessage := message.Text
 					if strings.Contains(replyMessage, postText) {
-						subCmd := "https://elms.u-aizu.ac.jp/login/index.php"
-						err := exec.Command("curl", subCmd, "-X", "GET", "-c", "cookie.txt", "-o", "login.html").Run()
+						err := exec.Command("curl", url, "-X", "GET", "-c", "cookie.txt", "-o", "login.html").Run()
 						if err != nil {
 							log.Fatalf("Failed to request : %v", err)
 						}
