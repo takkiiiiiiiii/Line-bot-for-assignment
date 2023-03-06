@@ -53,57 +53,6 @@ func main() {
 				case *linebot.TextMessage: //文字列の場合
 					replyMessage := message.Text
 					if strings.Contains(replyMessage, postText) {
-
-						// driver := agouti.ChromeDriver(
-						// 	agouti.ChromeOptions("args", []string{
-						// 		"--headless",
-						// 		"--window-size=300,1200",
-						// 		"--disable-gpu",
-						// 		"--disable-dev-shm-usage",
-						// 	}),
-						// 	agouti.ChromeOptions(
-						// 		"binary", "/app/.chromedriver/bin/chromedriver",
-						// 	),
-						// 	agouti.Debug,
-						// )
-						// if err := driver.Start(); err != nil {
-						// 	log.Fatalf("Failed to start driver:%v", err)
-						// }
-						// defer driver.Stop()
-
-						// page, err := driver.NewPage()
-
-						// if err != nil {
-						// 	log.Fatalf("Failed to open page:%v", err)
-						// }
-						// // ログインページに遷移
-						// if err := page.Navigate(url); err != nil {
-						// 	log.Fatalf("Failed to navigate login page:%v", err)
-						// }
-						// //defer driver.Stop()
-
-						// // ID, Passの要素を取得し、値を設定
-						// identity := page.FindByID("username")
-						// password := page.FindByID("password")
-						// identity.Fill(id)
-						// password.Fill(pass)
-						// input := page.FindByLabel("Remember username")
-						// if err = input.Click(); err != nil {
-						// 	log.Fatalf("Failed to navigate:%v", err)
-						// }
-						// btn := page.FindByButton("Log in")
-						// if err = btn.Click(); err != nil {
-						// 	log.Fatalf("Failed to log in:%v", err)
-						// }
-
-						// link := page.FindByLink("カレンダーへ移動する ...")
-
-						// if err := link.Click(); err != nil {
-						// 	log.Fatalf("Failed to navigate:%v", err)
-						// }
-
-						// html, _ := page.HTML() //遷移先のhtmlを取得
-
 						subCmd := "https://elms.u-aizu.ac.jp/login/index.php"
 						err := exec.Command("curl", subCmd, "-X", "GET", "-c", "cookie.txt", "-o", "login.html").Run()
 						if err != nil {
