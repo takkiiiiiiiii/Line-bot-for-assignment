@@ -60,7 +60,7 @@ func main() {
 						if err != nil {
 							log.Fatalf("Failed to request : %v", err)
 						}
-						authPage, err := os.Open("/Users/yudai/Go/test/line-bot-for-assignment/login.html")
+						authPage, err := os.Open("login.html")
 						if err != nil {
 							log.Fatalf("Failed to open %v", err)
 						}
@@ -81,12 +81,12 @@ func main() {
 						err = exec.Command("curl", "-X", "POST", url, "-s", "-L",
 							"-F", "anchor=", "-F", payload_username, "-F", payload_password, "-F",
 							payload_loginToken, "-F", payload_rememberusername,
-							"-b", "cookie.txt", "-c", "cookie02.txt", "-o", "file02.html").Run()
+							"-b", "cookie.txt", "-c", "cookie02.txt", "-o", "mypage.html").Run()
 						if err != nil {
 							log.Fatalf("Failed to request : %v", err)
 						}
 
-						myPage, err := os.Open("/Users/yudai/Go/test/test7/file02.html")
+						myPage, err := os.Open("mypage.html")
 						if err != nil {
 							log.Fatalf("Failed to open %v", err)
 						}
@@ -131,11 +131,7 @@ func main() {
 	}
 
 	http.HandleFunc("/kadai", kadai)
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "443"
-	}
-	if err := http.ListenAndServe(":"+port, nil); err != nil {
+	if err := http.ListenAndServe(":7777", nil); err != nil {
 		log.Print(err)
 	}
 	time.Sleep(10 * time.Second)
