@@ -14,9 +14,12 @@ import (
 )
 
 const (
-	url  = "https://elms.u-aizu.ac.jp/login/index.php"
-	id   = "s1290077"
-	pass = "takkiiiiiiiii25"
+	url                      = "https://elms.u-aizu.ac.jp/login/index.php"
+	username                 = "s1290077"
+	password                 = "takkiiiiiiiii25"
+	payload_username         = "username=s1290077"
+	payload_password         = "password=takkiiiiiiiii25"
+	payload_rememberusername = "rememberusername=1"
 )
 
 var data []string
@@ -56,15 +59,15 @@ func main() {
 						subCmd := "https://elms.u-aizu.ac.jp/login/index.php"
 						err := exec.Command("curl", subCmd, "-X", "GET", "-c", "cookie.txt", "-o", "login.html").Run()
 						if err != nil {
-							log.Fatalf("Failed to execute : %v", err)
+							log.Fatalf("Failed to request : %v", err)
 						}
-						auth_page, err := os.Open("/Users/yudai/Go/test/line-bot-for-assignment/login.html")
+						authPage, err := os.Open("/Users/yudai/Go/test/line-bot-for-assignment/login.html")
 						if err != nil {
 							log.Fatalf("Failed to open %v", err)
 						}
-						defer auth_page.Close()
+						defer authPage.Close()
 
-						auth_doc, err := goquery.NewDocumentFromReader(auth_page)
+						auth_doc, err := goquery.NewDocumentFromReader(authPage)
 						if err != nil {
 							log.Fatalf("Failed to read %v", err)
 						}
@@ -74,20 +77,23 @@ func main() {
 							val = append(val, nameElement)
 						})
 						//val[1]にloginToken
+						payload_loginToken := "logintoken=" + val[1]
 
-						file, err := os.Create("file.html")
+						err = exec.Command("curl", "-X", "POST", url, "-s", "-L",
+							"-F", "anchor=", "-F", payload_username, "-F", payload_password, "-F",
+							payload_loginToken, "-F", payload_rememberusername,
+							"-b", "cookie.txt", "-c", "cookie02.txt", "-o", "file02.html").Run()
 						if err != nil {
-							log.Fatalf("Failed to create file %v", err)
+							log.Fatalf("Failed to request : %v", err)
 						}
-						defer file.Close()
-						file_open, err := os.Open("/Users/yudai/Go/test/test7/file.html")
+
+						myPage, err := os.Open("/Users/yudai/Go/test/test7/file02.html")
 						if err != nil {
 							log.Fatalf("Failed to open %v", err)
 						}
-						defer file_open.Close()
-						file.WriteString(html)
-						//htmlをパース
-						doc, err := goquery.NewDocumentFromReader(file_open)
+						defer myPage.Close()
+
+						doc, err := goquery.NewDocumentFromReader(myPage)
 						if err != nil {
 							log.Fatalf("Failed to read %v", err)
 						}
@@ -116,7 +122,7 @@ func main() {
 					}
 				case *linebot.StickerMessage: //スタンプの場合
 					replyMessage := fmt.Sprintf(
-						"sticker id is %s, stickerResourceType is %s", message.StickerID, message.StickerResourceType)
+						"sticker username is %s, stickerResourceType is %s", message.StickerID, message.StickerResourceType)
 					if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(replyMessage)).Do(); err != nil {
 						log.Print(err)
 					}
