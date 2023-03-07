@@ -75,8 +75,10 @@ func main() {
 							nameElement, _ := item.Attr("value")
 							val = append(val, nameElement)
 						})
-						//val[1]にloginToken
+
 						payload_loginToken := "logintoken=" + val[1]
+
+						fmt.Println(payload_loginToken)
 
 						err = exec.Command("curl", "-X", "POST", url, "-s", "-L",
 							"-F", "anchor=", "-F", payload_username, "-F", payload_password, "-F",
@@ -98,22 +100,30 @@ func main() {
 						}
 						content := doc.Find("div.card.rounded")
 						content.Each(func(index int, item *goquery.Selection) {
-							contents := item.Find("div.d-inline-block").Find("h3.name.d-inline-block").Text()
+							contents := item.Find("div.d-inline-block").Find("h3.name.d-inline-block").Text()                  // 課題の内容
 							time := item.Find("div.description.card-body").Find("div.row").Find("div.col-11").Find("a").Text() //課題の教科名と締切日時
 							ok := time + "\n" + "内容: " + contents
 							data = append(data, ok)
 						})
 
-						for i, s = range data {
-							assignment += s + "\n" + "+-----------------------------+" + "\n"
-						}
+						fmt.Println(data) //　データがない場合
+						if len(data) < 1 {
+							notice := "直近の課題はありません。"
+							if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(notice)).Do(); err != nil {
+								log.Fatal(err)
+							}
+						} else {
+							for i, s = range data {
+								assignment += s + "\n" + "+-----------------------------+" + "\n"
+							}
 
-						if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(assignment)).Do(); err != nil {
-							log.Fatal(err)
+							if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(assignment)).Do(); err != nil {
+								log.Fatal(err)
+							}
+							//初期化
+							data = append(data[i+1:], data[i+1:]...)
+							assignment = ""
 						}
-						//初期化
-						data = append(data[i+1:], data[i+1:]...)
-						assignment = ""
 					} else {
 						if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(replyMessage)).Do(); err != nil {
 							log.Fatal(err)
