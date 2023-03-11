@@ -14,12 +14,12 @@ import (
 )
 
 const (
-	url                      = "https://elms.u-aizu.ac.jp/login/index.php"
-	username                 = "s1290077"
-	password                 = "takkiiiiiiiii25"
-	payload_username         = "username=s1290077"
-	payload_password         = "password=takkiiiiiiiii25"
-	payload_rememberusername = "rememberusername=1"
+	url                      = "url"
+	username                 = "studentID"
+	password                 = "password"
+	payload_username         = "username" + username
+	payload_password         = "password=password" + password
+	payload_rememberusername = "rememberusername=1" 
 )
 
 var data []string
@@ -31,8 +31,8 @@ var s string
 func main() {
 
 	bot, err := linebot.New(
-		"fd1fd5ee8ea8d5608866d25bc8f4eff8",
-		"G7wLav3sSFPlO+BZtbBvtlGDeFAB0iGm5mynU0jkPXZPLFwF1PMvWXoUBYOuiM25oO4/hsLEuJVzRfxwJ6U/ZfsKnywzM850aAz4ing3oYrHl8a0KYe+ViaEdT5mH0aKFedfKPBi+6oH5zDD8WKXYAdB04t89/1O/w1cDnyilFU=",
+		os.Getenv("LINE_BOT_CHANNEL_SECRET"),
+        os.Getenv("LINE_BOT_CHANNEL_TOKEN"),
 	)
 	if err != nil {
 		log.Fatal(err)
@@ -52,8 +52,7 @@ func main() {
 		for _, event := range events {
 			if event.Type == linebot.EventTypeMessage {
 				switch message := event.Message.(type) {
-				//メッセージがテキスト形式の場合
-				case *linebot.TextMessage: //文字列の場合
+				case *linebot.TextMessage:
 					replyMessage := message.Text
 					if strings.Contains(replyMessage, postText) {
 						err := exec.Command("curl", url, "-X", "GET", "-c", "cookie.txt", "-o", "login.html").Run()
@@ -141,7 +140,7 @@ func main() {
 	}
 
 	http.HandleFunc("/kadai", kadai)
-	if err := http.ListenAndServe(":7777", nil); err != nil {
+    if err := http.ListenAndServe(":" + os.Getenv("LINE_BOT_PORT"), nil); err != nil {
 		log.Print(err)
 	}
 	time.Sleep(10 * time.Second)
