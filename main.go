@@ -17,8 +17,8 @@ const (
 	url                      = "url"
 	username                 = "studentID"
 	password                 = "password"
-	payload_username         = "username" + username
-	payload_password         = "password=password" + password
+	payload_username         = "username=" + username
+	payload_password         = "password=" + password
 	payload_rememberusername = "rememberusername=1" 
 )
 
