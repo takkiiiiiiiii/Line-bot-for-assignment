@@ -101,11 +101,10 @@ func main() {
 						content.Each(func(index int, item *goquery.Selection) {
 							contents := item.Find("div.d-inline-block").Find("h3.name.d-inline-block").Text()                  // 課題の内容
 							time := item.Find("div.description.card-body").Find("div.row").Find("div.col-11").Find("a").Text() //課題の教科名と締切日時
-							ok := time + "\n" + "内容: " + contents
+                            ok := index + ":" + time + "\n" + "内容: " + contents
 							data = append(data, ok)
 						})
 
-						fmt.Println(data) //　データがない場合
 						if len(data) < 1 {
 							notice := "直近の課題はありません。"
 							if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(notice)).Do(); err != nil {
