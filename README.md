@@ -1,3 +1,3 @@
 # Line-bot-for-assignment
 
-![](/img.jpeg)
+![](img/img.jpeg)
