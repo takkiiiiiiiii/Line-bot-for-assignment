@@ -33,8 +33,8 @@ var s string
 func main() {
 
 	bot, err := linebot.New(
-		"my_token",
-        "my_long_token"
+		os.Getenv("LINE_BOT_CHANNEL_SECRET"),
+        os.Getenv("LINE_BOT_CHANNEL_TOKEN"),
 	)
 	if err != nil {
 		log.Fatal(err)
