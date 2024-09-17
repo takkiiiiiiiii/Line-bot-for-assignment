@@ -13,28 +13,20 @@ import (
 	"github.com/line/line-bot-sdk-go/v7/linebot"
 )
 
-const (
-	url                      = "url"
-	username                 = "studentID"
-	password                 = "password"
-	payload_username         = "username=" + username
-	payload_password         = "password=" + password
-	payload_rememberusername = "rememberusername=1"
-)
+const url  = "https://elms.u-aizu.ac.jp/login/index.php"
 
-var head []string
-var schedule string
-var assignments []string // assignment name
-var courses []string     // course name
-var links []string       // assignment link
-var i int
-var s string
+var assignments []string
+
 
 func main() {
-
+	username  := os.Getenv("LMS_ID")
+	password  := os.Getenv("LMS_PASS")
+	payload_username  := "username=" + username
+	payload_password  := "password=" + password
+	payload_rememberusername := "rememberusername=1"
 	bot, err := linebot.New(
-		os.Getenv("LINE_BOT_CHANNEL_SECRET"),
-        os.Getenv("LINE_BOT_CHANNEL_TOKEN"),
+		os.Getenv("LINE_CHANNEL_ACCESS_SECRET_ASSIGNMENT"),
+        os.Getenv("LINE_CHANNEL_ACCESS_TOKEN_ASSIGNMENT"),
 	)
 	if err != nil {
 		log.Fatal(err)
@@ -60,82 +52,82 @@ func main() {
 					if strings.Contains(replyMessage, postText) {
 						err := exec.Command("curl", url, "-X", "GET", "-c", "cookie/login_cookie.txt", "-o", "html/login.html").Run()
 						if err != nil {
-							log.Fatalf("Failed to request : %v", err)
+							fmt.Printf("Failed to request : %v", err)
+							os.Exit(1)
 						}
-						authPage, err := os.Open("html/login.html")
+						loginPage, err := os.Open("html/login.html")
 						if err != nil {
-							log.Fatalf("Failed to open %v", err)
+							fmt.Printf("Failed to open %v", err)
+							os.Exit(2)
 						}
-						defer authPage.Close()
+						defer loginPage.Close()
 
-						auth_doc, err := goquery.NewDocumentFromReader(authPage)
+						auth_doc, err := goquery.NewDocumentFromReader(loginPage)
 						if err != nil {
-							log.Fatalf("Failed to read %v", err)
+							fmt.Printf("Failed to read %v", err)
+							os.Exit(3)
 						}
 						var val []string
 						auth_doc.Find("input").Each(func(index int, item *goquery.Selection) {
 							nameElement, _ := item.Attr("value")
 							val = append(val, nameElement)
 						})
-
-						payload_loginToken := "logintoken=" + val[1]
+						payload_loginToken := "logintoken=" + val[0]
 
 						err = exec.Command("curl", "-X", "POST", url, "-s", "-L",
 							"-F", "anchor=", "-F", payload_username, "-F", payload_password, "-F",
 							payload_loginToken, "-F", payload_rememberusername,
 							"-o", "html/mypage.html", "-b", "cookie/login_cookie.txt", "-c", "cookie/mypage_cookie.txt").Run()
 						if err != nil {
-							log.Fatalf("Failed to request : %v", err)
+							fmt.Printf("Failed to request : %v", err)
+							os.Exit(4)
 						}
 
-						err = exec.Command("curl", "-c", "cookie/calendar_cookie.txt", "-X", "GET", "https://elms.u-aizu.ac.jp/calendar/view.php?view=upcoming",
-							"-b", "cookie/mypage_cookie.txt", "-o", "html/calendar.html").Run()
+						mypage, err := os.Open("html/mypage.html")
 						if err != nil {
-							log.Fatalf("Failed to request : %v", err)
+							fmt.Printf("Failed to open: %v", err)
+							os.Exit(5)
 						}
-
-						calendar, err := os.Open("html/calendar.html")
+						defer mypage.Close()
+						doc, err := goquery.NewDocumentFromReader(mypage)
 						if err != nil {
-							log.Fatalf("Failed to open %v", err)
+							fmt.Printf("Failed to read: %v", err)
+							os.Exit(6)
 						}
-						defer calendar.Close()
-
-						doc, err := goquery.NewDocumentFromReader(calendar)
-						if err != nil {
-							log.Fatalf("Failed to read %v", err)
-						}
-						homeworks := doc.Find("div.event")
-						homeworks.Each(func(index int, item *goquery.Selection) {
-							assignment := item.Find("div.card.rounded").Find("div.d-inline-block").Find("h3.name.d-inline-block").Text()
+						// ここから修正
+				
+						selection := doc.Find("div.tab-pane")
+						selection.Each(func(index int, item *goquery.Selection) {
+							assignment := item.Find("div.hidden").Find("p.mt-1").Text()
 							assignments = append(assignments, assignment)
-
 						})
-						subjects := doc.Find("div.description.card-body")
-						subjects.Each(func(index int, item *goquery.Selection) {
-							course := item.Find("div.col-11").Find("a").Text()
-							link, _ := item.Find("div.row.mt-1").Find("div.col-11").Find("a").Attr("href")
-							courses = append(courses, course)
-							links = append(links, link)
-						})
-						if len(assignments) < 1 {
-							notice := "直近の課題はありません。"
-							if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(notice)).Do(); err != nil {
+						if len(assignments) == 0 {
+							if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("サーバメンテナンスのため、現在、LMSは利用できません。")).Do(); err != nil {
+								log.Fatal(err)
+							}
+						} else if len(assignments) / 2 < 3 {
+							if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(assignments[1])).Do(); err != nil {
 								log.Fatal(err)
 							}
 						} else {
-							for i = 0; i < len(assignments); i++ {
-								schedule += courses[i] + "\n" + "内容: " + assignments[i] + "\n" + "リンク: " + links[i] + "\n" + "+-----------------------------+" + "\n"
-							}
-
-							if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(schedule)).Do(); err != nil {
+							if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(assignments[1])).Do(); err != nil {
 								log.Fatal(err)
 							}
-							//スライスの中身を全て削除
-							assignments = nil
-							courses = nil
-							links = nil
-							schedule = ""
 						}
+						// else {
+						// 	for i = 0; i < len(assignments); i++ {
+						// 		schedule += courses[i] + "\n" + "内容: " + assignments[i] + "\n" + "リンク: " + links[i] + "\n" + "+-----------------------------+" + "\n"
+						// 	}
+
+						// 	if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(schedule)).Do(); err != nil {
+						// 		log.Fatal(err)
+						// 	}
+						// 	//スライスの中身を全て削除
+						// 	assignments = nil
+						// 	courses = nil
+						// 	links = nil
+						// 	schedule = ""
+						// }
 					} else {
 						if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(replyMessage)).Do(); err != nil {
 							log.Fatal(err)
@@ -153,7 +145,7 @@ func main() {
 	}
 
 	http.HandleFunc("/kadai", kadai)
-	if err := http.ListenAndServe(":port", nil); err != nil {
+	if err := http.ListenAndServe(":" + os.Getenv("LINE_ASSIGNMENT_BOT_PORT"), nil); err != nil {
 		log.Print(err)
 	}
 	time.Sleep(10 * time.Second)
