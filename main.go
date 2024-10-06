@@ -8,6 +8,7 @@ import (
 	"os/exec"
 	"strings"
 	"time"
+	"strconv"
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/line/line-bot-sdk-go/v7/linebot"
@@ -16,6 +17,8 @@ import (
 const url  = "https://elms.u-aizu.ac.jp/login/index.php"
 
 var assignments []string
+var dates []string
+var schedule string
 
 
 func main() {
@@ -73,6 +76,7 @@ func main() {
 							val = append(val, nameElement)
 						})
 						payload_loginToken := "logintoken=" + val[0]
+						fmt.Println(val[0])
 
 						err = exec.Command("curl", "-X", "POST", url, "-s", "-L",
 							"-F", "anchor=", "-F", payload_username, "-F", payload_password, "-F",
@@ -96,11 +100,14 @@ func main() {
 						}
 						// ここから修正
 				
-						selection := doc.Find("div.tab-pane")
+						selection := doc.Find("div.event").Find("div.overflow-auto")
 						selection.Each(func(index int, item *goquery.Selection) {
-							assignment := item.Find("div.hidden").Find("p.mt-1").Text()
+							assignment := item.Find("a.text-truncate").Text()
+							date := item.Find("div.date").Text()
 							assignments = append(assignments, assignment)
+							dates = append(dates, date)
 						})
+						
 						if len(assignments) == 0 {
 							if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage("サーバメンテナンスのため、現在、LMSは利用できません。")).Do(); err != nil {
 								log.Fatal(err)
@@ -110,23 +117,14 @@ func main() {
 								log.Fatal(err)
 							}
 						} else {
-							if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(assignments[1])).Do(); err != nil {
+							for i := range assignments {
+								schedule += "+--------------------------+\n" + strconv.Itoa(i+1) + " " + assignments[i] + "\n" + dates[i] + "\n"
+							}
+							schedule += "+--------------------------+\n"
+							if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(schedule)).Do(); err != nil {
 								log.Fatal(err)
 							}
 						}
-						// else {
-						// 	for i = 0; i < len(assignments); i++ {
-						// 		schedule += courses[i] + "\n" + "内容: " + assignments[i] + "\n" + "リンク: " + links[i] + "\n" + "+-----------------------------+" + "\n"
-						// 	}
-
-						// 	if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(schedule)).Do(); err != nil {
-						// 		log.Fatal(err)
-						// 	}
-						// 	//スライスの中身を全て削除
-						// 	assignments = nil
-						// 	courses = nil
-						// 	links = nil
-						// 	schedule = ""
 						// }
 					} else {
 						if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(replyMessage)).Do(); err != nil {
@@ -145,8 +143,9 @@ func main() {
 	}
 
 	http.HandleFunc("/kadai", kadai)
-	if err := http.ListenAndServe(":" + os.Getenv("LINE_ASSIGNMENT_BOT_PORT"), nil); err != nil {
+	if err := http.ListenAndServe(":7777", nil); err != nil {
 		log.Print(err)
 	}
 	time.Sleep(10 * time.Second)
 }
+
