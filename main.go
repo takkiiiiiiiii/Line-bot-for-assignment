@@ -16,9 +16,7 @@ import (
 
 const url  = "https://elms.u-aizu.ac.jp/login/index.php"
 
-var assignments []string
-var dates []string
-var schedule string
+
 
 
 func main() {
@@ -99,7 +97,9 @@ func main() {
 							os.Exit(6)
 						}
 						// ここから修正
-				
+						var schedule string
+						var assignments []string
+						var dates []string 
 						selection := doc.Find("div.event").Find("div.overflow-auto")
 						selection.Each(func(index int, item *goquery.Selection) {
 							assignment := item.Find("a.text-truncate").Text()
@@ -115,6 +115,7 @@ func main() {
 						} else if len(assignments) / 2 < 3 {
 							if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(assignments[1])).Do(); err != nil {
 								log.Fatal(err)
+
 							}
 						} else {
 							for i := range assignments {
@@ -124,6 +125,7 @@ func main() {
 							if _, err = bot.ReplyMessage(event.ReplyToken, linebot.NewTextMessage(schedule)).Do(); err != nil {
 								log.Fatal(err)
 							}
+							
 						}
 						// }
 					} else {
@@ -148,4 +150,3 @@ func main() {
 	}
 	time.Sleep(10 * time.Second)
 }
-
