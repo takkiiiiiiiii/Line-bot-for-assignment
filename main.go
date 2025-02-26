@@ -153,4 +153,3 @@ func scrapePage(payload_username, payload_password, payload_rememberusername str
 	})
 	return assignments, dates, schedule
 }
-
