@@ -1,0 +1,13 @@
+version: '3'
+services:
+  linebot:
+    image: linebot-assignment
+    build: .
+    ports:
+      - "7777:7777"
+    environment:
+      - LMS_ID
+      - LMS_PASS
+      - LINE_CHANNEL_ACCESS_SECRET_ASSIGNMENT
+      - LINE_CHANNEL_ACCESS_TOKEN_ASSIGNMENT
+    command: /start.sh
