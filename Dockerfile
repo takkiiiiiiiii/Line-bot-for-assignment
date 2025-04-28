@@ -27,14 +27,9 @@ COPY go.sum ./
 RUN go mod download
 COPY . .
 
-RUN go build -o app
-
-# start.sh スクリプトをコピー
-COPY start.sh /start.sh
-
-# スクリプトを実行可能にする
-RUN chmod +x /start.sh
+RUN go build -o app .
 
 EXPOSE 7777
 
-CMD ["/start.sh"]
+# アプリケーションを実行
+CMD ["./app"]

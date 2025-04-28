@@ -1,4 +1,3 @@
-version: '3'
 services:
   linebot:
     image: linebot-assignment
@@ -10,4 +9,3 @@ services:
       - LMS_PASS
       - LINE_CHANNEL_ACCESS_SECRET_ASSIGNMENT
       - LINE_CHANNEL_ACCESS_TOKEN_ASSIGNMENT
-    command: /start.sh
