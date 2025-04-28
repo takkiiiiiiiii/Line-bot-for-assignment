@@ -1,4 +1,4 @@
-module scraping
+module assignment-bot
 
 go 1.18
 
